@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go/format"
 	"go/parser"
 	"go/token"
 	"log"
-	"os"
 )
 
 func main() {
@@ -16,15 +14,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%+v\n", f)
+	pos := fset.Position(f.Package)
+	fmt.Printf("%+v\n", pos.Offset)
 
-	file, err := os.Create("gen_example.go")
-	if err != nil {
-		log.Fatal(err)
+	for _, imp := range f.Imports {
+		pos = fset.Position(imp.Pos())
+		fmt.Printf("%+v\n", pos.Offset)
 	}
-	defer file.Close()
 
-	if err := format.Node(file, fset, f); err != nil {
-		log.Fatal(err)
-	}
+	//file, err := os.Create("gen_example.go")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//defer file.Close()
+
+	//if err := format.Node(file, fset, f); err != nil {
+	//	log.Fatal(err)
+	//}
 }
