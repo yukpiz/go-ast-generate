@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"log"
+	"os"
 )
 
 func main() {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "example.go", nil, 0)
+	f, err := parser.ParseFile(fset, "example.go", nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -17,10 +19,7 @@ func main() {
 	pos := fset.Position(f.Package)
 	fmt.Printf("%+v\n", pos.Offset)
 
-	for _, imp := range f.Imports {
-		pos = fset.Position(imp.Pos())
-		fmt.Printf("%+v\n", pos.Offset)
-	}
+	ast.Fprint(os.Stdout, fset, f, nil)
 
 	//file, err := os.Create("gen_example.go")
 	//if err != nil {

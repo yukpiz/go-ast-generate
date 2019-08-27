@@ -1,32 +1,31 @@
 package main
 
 import (
-	"go/ast"
+	"fmt"
 	"go/format"
+	"go/parser"
 	"go/token"
 	"log"
 	"os"
 )
 
+var GEN_FILE_PATH = "cmd/gen.go"
+
 func main() {
 	fset := token.NewFileSet()
-	file, err := os.Create("gen.go")
+	file, err := os.Create(GEN_FILE_PATH)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
-	f := &ast.File{
-		Name: ast.NewIdent("main"),
-		Decls: []ast.Decl{
-			&ast.FuncDecl{
-				Name: ast.NewIdent("Hello"),
-				Type: &ast.FuncType{},
-			},
-		},
-	}
-
-	if err := format.Node(file, fset, f); err != nil {
+	if err := format.Node(file, fset, basicAST); err != nil {
 		log.Fatal(err)
 	}
+
+	f, err := parser.ParseFile(fset, GEN_FILE_PATH, nil, parser.ParseComments)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%+v\n", f)
 }
